@@ -2,6 +2,7 @@ package bootstrap
 
 import org.example.AppHub
 import org.example.CreateDraftCommand
+import org.example.InMemoryAuthenticateService
 import org.example.UserDetails
 
 enum class TestScenarioConfig {
@@ -10,7 +11,9 @@ enum class TestScenarioConfig {
 
 fun newTestScenario(config: TestScenarioConfig) : DdtScenario = when (config) {
     TestScenarioConfig.InMemory -> InMemoryScenario(
-        theHub = AppHub()
+        theHub = AppHub(
+            authenticateService = InMemoryAuthenticateService()
+        )
     )
 }
 
