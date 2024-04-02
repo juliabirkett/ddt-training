@@ -8,23 +8,40 @@ import java.util.*
 
 class CreateDraftDdt {
     private val scenario = newTestScenario(TestScenarioConfig.InMemory)
-    private val author = scenario.newAuthor(
+    private val janeTheAuthor = scenario.newAuthor(
         UserDetails(
             id = UUID.randomUUID(),
-            name = "Logged user",
+            name = "Jane user",
+            isLoggedIn = false
+        )
+    )
+    private val bobTheAuthor = scenario.newAuthor(
+        UserDetails(
+            id = UUID.randomUUID(),
+            name = "Bob user",
             isLoggedIn = false
         )
     )
 
     @Test
-    fun `An authorised author can create a draft`() {
-        author.logsIn()
+    fun `Authenticated author can create a draft`() {
+        janeTheAuthor.logsIn()
 
-        author.canCreateADraft()
+        janeTheAuthor.canCreateADraft()
     }
 
     @Test
-    fun `An unauthorised author can not create a draft`() {
-        author.cannotCreateADraft()
+    fun `Unauthenticated author can not create a draft`() {
+        janeTheAuthor.cannotCreateADraft()
+    }
+
+    @Test
+    fun `Only authorised authors can edit the draft`() {
+        janeTheAuthor.logsIn()
+        bobTheAuthor.logsIn()
+
+        val draftId = janeTheAuthor.canCreateADraft()
+        janeTheAuthor.canEditDraft(draftId = draftId)
+        bobTheAuthor.cannotEditDraft(draftId = draftId)
     }
 }
