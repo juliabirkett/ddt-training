@@ -31,6 +31,7 @@ class InMemoryScenario(
 abstract class Author {
     abstract fun logsIn()
     abstract fun canCreateADraft()
+    abstract fun cannotCreateADraft()
 }
 
 class InMemoryAuthor(
@@ -42,10 +43,26 @@ class InMemoryAuthor(
     }
 
     override fun canCreateADraft() {
-        theHub.createDraft(CreateDraftCommand(title = "Amazing title", abstract = "Something"))
-            .expectSuccess()
+        theHub.createDraft(
+            CreateDraftCommand(
+                title = "Amazing title",
+                abstract = "Something",
+                actor = userDetails,
+            )
+        ).expectSuccess()
+    }
+
+    override fun cannotCreateADraft() {
+        theHub.createDraft(
+            CreateDraftCommand(
+                title = "Amazing title",
+                abstract = "Something",
+                actor = userDetails
+            )
+        ).expectFailure()
     }
 }
 
-fun <T> Result<T>.expectSuccess() = if (isSuccess) this else Result.failure(Exception("Expected success, was failure!"))
+fun <T> Result<T>.expectSuccess() = if (isSuccess) this else Result.failure(Exception("Expected success, was failure! $this"))
+fun <T> Result<T>.expectFailure() = if (isSuccess) throw Exception("Expected failure, was success! $this") else this
 

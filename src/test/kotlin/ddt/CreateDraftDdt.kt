@@ -17,9 +17,14 @@ class CreateDraftDdt {
     )
 
     @Test
-    fun `An author can create a draft`() {
+    fun `An authorised author can create a draft`() {
         author.logsIn()
 
         author.canCreateADraft()
+    }
+
+    @Test
+    fun `An unauthorised author can not create a draft`() {
+        author.cannotCreateADraft()
     }
 }
