@@ -1,5 +1,8 @@
 package bootstrap
 
+import bootstrap.actors.Author
+import bootstrap.actors.Editor
+import bootstrap.actors.InMemoryAuthor
 import org.example.*
 import java.util.UUID
 
@@ -18,6 +21,7 @@ fun newTestScenario(config: TestScenarioConfig) : DdtScenario = when (config) {
 
 abstract class DdtScenario {
     abstract fun newAuthor(userDetails: UserDetails): Author
+    abstract fun newEditor(userDetails: UserDetails): Editor
 }
 
 class InMemoryScenario(
@@ -28,64 +32,9 @@ class InMemoryScenario(
             userDetails = userDetails,
             theHub = theHub,
         )
-}
 
-abstract class Author {
-    abstract fun logsIn()
-    abstract fun canCreateADraft(): UUID
-    abstract fun cannotCreateADraft()
-    abstract fun canEditDraft(draftId: UUID)
-    abstract fun cannotEditDraft(draftId: UUID)
-}
-
-class InMemoryAuthor(
-    private var userDetails: UserDetails,
-    private val theHub: AppHub,
-) : Author() {
-    override fun logsIn()  {
-        userDetails = userDetails.copy(isLoggedIn = true)
-    }
-
-    override fun canCreateADraft(): UUID =
-        theHub.createDraft(
-            CreateDraftCommand(
-                title = "Amazing title",
-                abstract = "Something",
-                actor = userDetails,
-            )
-        )
-            .map { draft ->
-                draft.id
-            }
-            .expectSuccess()
-            .getOrElse { throw it }
-
-    override fun canEditDraft(draftId: UUID) {
-        theHub.editDraft(
-            EditDraftCommand(
-                draftId = draftId,
-                actor = userDetails,
-            )
-        ).expectSuccess()
-    }
-
-    override fun cannotEditDraft(draftId: UUID) {
-        theHub.editDraft(
-            EditDraftCommand(
-                draftId = draftId,
-                actor = userDetails,
-            )
-        ).expectFailure()
-    }
-
-    override fun cannotCreateADraft() {
-        theHub.createDraft(
-            CreateDraftCommand(
-                title = "Amazing title",
-                abstract = "Something",
-                actor = userDetails
-            )
-        ).expectFailure()
+    override fun newEditor(userDetails: UserDetails): Editor {
+        TODO("Not yet implemented")
     }
 }
 

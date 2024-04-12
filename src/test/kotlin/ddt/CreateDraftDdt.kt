@@ -22,6 +22,13 @@ class CreateDraftDdt {
             isLoggedIn = false
         )
     )
+    private val edTheEditor = scenario.newEditor(
+        UserDetails(
+            id = UUID.randomUUID(),
+            name = "Ed Editor",
+            isLoggedIn = false
+        )
+    )
 
     @Test
     fun `Authenticated author can create a draft`() {
@@ -43,5 +50,14 @@ class CreateDraftDdt {
         val draftId = janeTheAuthor.canCreateADraft()
         janeTheAuthor.canEditDraft(draftId = draftId)
         bobTheAuthor.cannotEditDraft(draftId = draftId)
+    }
+
+    @Test
+    fun `Editor can create an amendment draft`() {
+        janeTheAuthor.logsIn()
+
+        val draftId = janeTheAuthor.canCreateADraft()
+        val amendmentDraftId = edTheEditor.canCreateAmendment(draftId = draftId)
+        janeTheAuthor.canEditDraft(draftId = amendmentDraftId)
     }
 }
