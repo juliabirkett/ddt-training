@@ -6,7 +6,7 @@ class StoreDdts {
     private val scenario = newTestScenario(TestScenarioConfig.InMemory)
 
     @Test
-    fun `a customer can buy a product that `() {
+    fun `a customer can buy a product that exists in the stock`() {
         val theCustomer = scenario.newCustomer()
         val theStoreManager = scenario.newManager()
 
@@ -18,7 +18,7 @@ class StoreDdts {
             )
         )
 
-        theCustomer.canSeeProductsCatalog()
+        theCustomer.canSeeProductsCatalog(listOf(0, 1, 2))
         theCustomer.canBuy(productId = 0)
     }
 }

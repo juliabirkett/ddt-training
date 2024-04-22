@@ -41,7 +41,7 @@ class InMemoryManager(private val hub: StoreAppHub) : Manager() {
 
 abstract class Customer {
     abstract fun canBuy(productId: Int)
-    abstract fun canSeeProductsCatalog()
+    abstract fun canSeeProductsCatalog(productIds: List<Int>)
 }
 
 class InMemoryCustomer(private val hub: StoreAppHub) : Customer() {
@@ -49,7 +49,7 @@ class InMemoryCustomer(private val hub: StoreAppHub) : Customer() {
         hub.buy(productId)
     }
 
-    override fun canSeeProductsCatalog() {
-        assertEquals(3, hub.catalog().size)
+    override fun canSeeProductsCatalog(productIds: List<Int>) {
+        assertEquals(productIds, hub.catalog().map { it.id })
     }
 }
