@@ -1,6 +1,7 @@
 package com.store
 
 import org.junit.jupiter.api.Assertions.assertEquals
+import org.junit.jupiter.api.assertThrows
 
 enum class TestScenarioConfig {
     InMemory;
@@ -41,12 +42,17 @@ class InMemoryManager(private val hub: StoreAppHub) : Manager() {
 
 abstract class Customer {
     abstract fun canBuy(productId: Int)
+    abstract fun cannotBuy(productId: Int)
     abstract fun canSeeProductsCatalog(productIds: List<Int>)
 }
 
 class InMemoryCustomer(private val hub: StoreAppHub) : Customer() {
     override fun canBuy(productId: Int) {
         hub.buy(productId)
+    }
+
+    override fun cannotBuy(productId: Int) {
+        assertThrows<Exception> { hub.buy(productId) }
     }
 
     override fun canSeeProductsCatalog(productIds: List<Int>) {
