@@ -12,6 +12,10 @@ object InMemoryStorageRepository : StorageRepository {
 
     override fun findAll(): List<Product> = products
     override fun save(product: Product) {
+        products.find { it.id == product.id }?.let { existingProduct ->
+            products.remove(existingProduct)
+        }
+
         products += product
     }
 }
@@ -52,7 +56,7 @@ class InMemoryCustomer(private val hub: StoreAppHub) : Customer() {
     }
 
     override fun cannotBuy(productId: Int) {
-        assertThrows<Exception> { hub.buy(productId) }
+        assertThrows<ProductIsOutOfStock> { hub.buy(productId) }
     }
 
     override fun canSeeProductsCatalog(productIds: List<Int>) {
