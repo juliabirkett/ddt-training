@@ -4,7 +4,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 import org.junit.jupiter.api.assertThrows
 
 enum class TestScenarioConfig {
-    InMemory;
+    InMemory, Cli;
 }
 
 object InMemoryStorageRepository : StorageRepository {
@@ -24,6 +24,9 @@ fun newTestScenario(config: TestScenarioConfig) : DdtScenario = when (config) {
     TestScenarioConfig.InMemory -> InMemoryScenario(
         hub = StoreAppHub(InMemoryStorageRepository)
     )
+    TestScenarioConfig.Cli -> CliScenario(
+
+    )
 }
 
 abstract class DdtScenario {
@@ -34,6 +37,16 @@ abstract class DdtScenario {
 class InMemoryScenario(val hub: StoreAppHub) : DdtScenario() {
     override fun newCustomer(): Customer = InMemoryCustomer(hub)
     override fun newManager(): Manager = InMemoryManager(hub)
+}
+
+class CliScenario : DdtScenario() {
+    override fun newCustomer(): Customer {
+        TODO("Not yet implemented")
+    }
+
+    override fun newManager(): Manager {
+        TODO("Not yet implemented")
+    }
 }
 
 abstract class Manager {

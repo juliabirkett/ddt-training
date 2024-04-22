@@ -15,8 +15,18 @@ dependencies {
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 }
 
-tasks.test {
-    useJUnitPlatform()
+tasks {
+    withType<Test>().configureEach {
+        useJUnitPlatform()
+    }
+
+    register<Test>("inMemory") {
+        environment("DDT_CONFIG", "in-memory")
+    }
+
+    register<Test>("cli") {
+        environment("DDT_CONFIG", "cli")
+    }
 }
 
 kotlin {
