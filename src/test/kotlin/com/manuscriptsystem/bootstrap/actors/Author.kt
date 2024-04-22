@@ -1,11 +1,11 @@
-package bootstrap.actors
+package com.manuscriptsystem.bootstrap.actors
 
-import bootstrap.expectFailure
-import bootstrap.expectSuccess
-import org.example.AppHub
-import org.example.CreateDraftCommand
-import org.example.EditDraftCommand
-import org.example.UserDetails
+import com.manuscriptsystem.bootstrap.expectFailure
+import com.manuscriptsystem.bootstrap.expectSuccess
+import org.example.com.manuscriptsystem.AppHub
+import org.example.com.manuscriptsystem.CreateDraftCommand
+import org.example.com.manuscriptsystem.EditDraftCommand
+import org.example.com.manuscriptsystem.UserDetails
 import java.util.*
 
 abstract class Author {

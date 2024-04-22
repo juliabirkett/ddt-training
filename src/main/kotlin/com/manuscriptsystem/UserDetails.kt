@@ -1,4 +1,4 @@
-package org.example
+package org.example.com.manuscriptsystem
 
 import java.util.UUID
 

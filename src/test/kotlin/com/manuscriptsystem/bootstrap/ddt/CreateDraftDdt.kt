@@ -1,8 +1,8 @@
-package ddt
+package com.manuscriptsystem.bootstrap.ddt
 
-import bootstrap.TestScenarioConfig
-import bootstrap.newTestScenario
-import org.example.UserDetails
+import com.manuscriptsystem.bootstrap.TestScenarioConfig
+import com.manuscriptsystem.bootstrap.newTestScenario
+import org.example.com.manuscriptsystem.UserDetails
 import org.junit.jupiter.api.Test
 import java.util.*
 

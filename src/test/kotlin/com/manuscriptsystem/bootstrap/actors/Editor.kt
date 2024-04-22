@@ -1,4 +1,4 @@
-package bootstrap.actors
+package com.manuscriptsystem.bootstrap.actors
 
 import java.util.*
 

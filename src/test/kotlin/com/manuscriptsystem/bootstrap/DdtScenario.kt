@@ -1,9 +1,9 @@
-package bootstrap
+package com.manuscriptsystem.bootstrap
 
-import bootstrap.actors.Author
-import bootstrap.actors.Editor
-import bootstrap.actors.InMemoryAuthor
-import org.example.*
+import com.manuscriptsystem.bootstrap.actors.Author
+import com.manuscriptsystem.bootstrap.actors.Editor
+import com.manuscriptsystem.bootstrap.actors.InMemoryAuthor
+import org.example.com.manuscriptsystem.*
 import java.util.UUID
 
 enum class TestScenarioConfig {
