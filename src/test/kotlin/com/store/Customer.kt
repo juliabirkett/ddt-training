@@ -1,9 +1,10 @@
 package com.store
 
+import com.natpryce.hamkrest.assertion.assertThat
+import com.natpryce.hamkrest.contains
+import com.natpryce.hamkrest.throws
 import com.store.cli.customerCliApp
 import org.junit.jupiter.api.Assertions.assertEquals
-import org.junit.jupiter.api.Assertions.assertTrue
-import org.junit.jupiter.api.assertThrows
 
 abstract class Customer {
     abstract fun canBuy(productId: Int)
@@ -17,7 +18,7 @@ class InMemoryCustomer(private val hub: StoreAppHub) : Customer() {
     }
 
     override fun cannotBuy(productId: Int) {
-        assertThrows<ProductIsOutOfStock> { hub.buy(productId) }
+        assertThat({ hub.buy(productId) }, throws<ProductIsOutOfStock>())
     }
 
     override fun canSeeProductsCatalog(productIds: List<Int>) {
@@ -35,14 +36,14 @@ class CliCustomer(repository: StorageRepository) : Customer() {
     }
 
     override fun cannotBuy(productId: Int) {
-        assertThrows<ProductIsOutOfStock> { canBuy(productId) }
+        assertThat({ canBuy(productId) }, throws<ProductIsOutOfStock>())
     }
 
     override fun canSeeProductsCatalog(productIds: List<Int>) {
         val output = captureSystemOut { app }
 
         productIds.forEach { id ->
-            assertTrue(output.contains(id.toString()))
+            assertThat(output, contains(Regex(id.toString())))
         }
     }
 }

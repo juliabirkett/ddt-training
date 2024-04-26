@@ -12,6 +12,7 @@ repositories {
 dependencies {
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("org.junit.jupiter:junit-jupiter-api")
+    testImplementation("com.natpryce:hamkrest:1.7.0.0")
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 }
 

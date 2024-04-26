@@ -1,7 +1,8 @@
 package com.store
 
+import com.natpryce.hamkrest.assertion.assertThat
+import com.natpryce.hamkrest.throws
 import com.store.cli.managerCliApp
-import org.junit.jupiter.api.assertThrows
 
 abstract class Manager {
     abstract fun canRegisterProductArrival(products: List<Product>)
@@ -13,9 +14,7 @@ class InMemoryManager(private val hub: StoreAppHub) : Manager() {
     override fun needToLogIn(password: String) { hub.logInAsAManager(password) }
 
     override fun cannotRegisterOrAnything() {
-        assertThrows<NotAuthenticatedAsManager> {
-            hub.logInAsAManager("invalid-password")
-        }
+        assertThat({ hub.logInAsAManager("invalid-password") }, throws<NotAuthenticatedAsManager>())
     }
 
     override fun canRegisterProductArrival(products: List<Product>) = products.forEach { hub.register(it) }
@@ -36,9 +35,7 @@ class CliManager(repository: StorageRepository) : Manager() {
     }
 
     override fun cannotRegisterOrAnything() {
-        assertThrows<NotAuthenticatedAsManager> {
-            interactWithSystemIn("invalid-password") { app }
-        }
+        assertThat({ interactWithSystemIn("invalid-password") { app } }, throws<NotAuthenticatedAsManager>())
     }
 
     override fun canRegisterProductArrival(products: List<Product>) {
