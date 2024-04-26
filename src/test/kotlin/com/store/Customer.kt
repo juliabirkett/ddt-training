@@ -1,15 +1,15 @@
 package com.store
 
+import com.github.michaelbull.result.Err
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.contains
 import com.natpryce.hamkrest.equalTo
-import com.natpryce.hamkrest.throws
 import com.store.cli.customerCliApp
 import org.junit.jupiter.api.Assertions.assertEquals
 
 abstract class Customer {
     abstract fun canBuy(productId: Int)
-    abstract fun cannotBuy(productId: Int, dueTo: Throwable)
+    abstract fun cannotBuy(productId: Int, dueTo: ErrorCode)
     abstract fun canSeeProductsCatalog(productIds: List<Int>)
 }
 
@@ -18,8 +18,8 @@ class InMemoryCustomer(private val hub: StoreAppHub) : Customer() {
         hub.buy(productId)
     }
 
-    override fun cannotBuy(productId: Int, dueTo: Throwable) {
-        assertThat({ hub.buy(productId) }, throws(equalTo(dueTo)))
+    override fun cannotBuy(productId: Int, dueTo: ErrorCode) {
+        assertThat(hub.buy(productId), equalTo(Err(dueTo)))
     }
 
     override fun canSeeProductsCatalog(productIds: List<Int>) {
@@ -36,8 +36,12 @@ class CliCustomer(repository: StorageRepository) : Customer() {
         interactWithSystemIn(productId.toString()) { app }
     }
 
-    override fun cannotBuy(productId: Int, dueTo: Throwable) {
-        assertThat({ canBuy(productId) }, throws(equalTo(dueTo)))
+    override fun cannotBuy(productId: Int, dueTo: ErrorCode) {
+        val output = captureSystemOut {
+            canBuy(productId)
+        }
+
+        assertThat(output, contains(Regex(dueTo.message)))
     }
 
     override fun canSeeProductsCatalog(productIds: List<Int>) {

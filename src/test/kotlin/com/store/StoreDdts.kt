@@ -14,7 +14,7 @@ class StoreDdts {
     fun `a manager that is not logged in cannot register products`() {
         val theStoreManager = scenario.newManager()
 
-        theStoreManager.cannotRegisterOrAnything()
+        theStoreManager.cannotRegisterProducts(NotAuthenticatedAsManager())
     }
 
     @Test

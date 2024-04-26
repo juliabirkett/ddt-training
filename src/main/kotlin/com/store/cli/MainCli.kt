@@ -1,5 +1,7 @@
 package com.store.cli
 
+import com.github.michaelbull.result.Result
+import com.store.ErrorCode
 import com.store.Product
 import com.store.StorageRepository
 import com.store.StoreAppHub
@@ -54,8 +56,14 @@ fun customerCliApp(
     while (scanner.hasNext()) {
         val id = scanner.nextInt()
 
-        hub.buy(id)
+        hub.buy(id).serialized(outFun)
     }
+}
+
+fun Result<Any, ErrorCode>.serialized(outFun: OutputStream) {
+    val errorMessage = if (this.isOk) "" else error.message
+
+    PrintStream(outFun).println(errorMessage)
 }
 
 fun managerCliApp(
@@ -75,7 +83,12 @@ fun managerCliApp(
     )
 
     val passwordString = scanner.nextLine().toString()
-    hub.logInAsAManager(passwordString)
+    val loggedIn = hub.logInAsAManager(passwordString)
+
+    if (loggedIn.isErr) {
+        loggedIn.serialized(outFun)
+        return
+    }
 
     PrintStream(outFun).println(
         """

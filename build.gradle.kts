@@ -10,9 +10,12 @@ repositories {
 }
 
 dependencies {
+    implementation("com.michael-bull.kotlin-result:kotlin-result:2.0.0")
+
     testImplementation("org.jetbrains.kotlin:kotlin-test")
     testImplementation("org.junit.jupiter:junit-jupiter-api")
     testImplementation("com.natpryce:hamkrest:1.7.0.0")
+
     testRuntimeOnly("org.junit.jupiter:junit-jupiter-engine")
 }
 
