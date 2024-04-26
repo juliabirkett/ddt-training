@@ -61,7 +61,15 @@ fun managerCliApp(
 ) {
     val hub = StoreAppHub(repository)
 
-    PrintStream(outFun).println("Registering a new product.\n Enter description and quantity (comma separated)")
+    PrintStream(outFun).println(
+        """
+             ------------ Register product  ------------
+             Please enter the product details in this format:
+             
+             > id,description,quantity
+             
+        """
+    )
 
     val scanner = Scanner(inFun)
 

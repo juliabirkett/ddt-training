@@ -37,11 +37,6 @@ class CliScenario: DdtScenario() {
     override fun newCustomer(): Customer = CliCustomer(repository)
 
     override fun newManager(): Manager = CliManager(repository)
-
-
-    companion object {
-        private const val COMMAND_DELIMITER = "|==========================================================================|"
-    }
 }
 
 abstract class Manager {
@@ -60,9 +55,7 @@ class CliManager(repository: StorageRepository) : Manager() {
    override fun canRegisterProductArrival(products: List<Product>) {
        val productsString = products.joinToString("\n") { "${it.id},${it.description},${it.quantity}" }
 
-       interactWithSystemIn(productsString) {
-           app
-       }
+       interactWithSystemIn(productsString) { app }
     }
 }
 
@@ -96,7 +89,7 @@ class CliCustomer(repository: StorageRepository) : Customer() {
     }
 
     override fun cannotBuy(productId: Int) {
-        TODO("Not yet implemented")
+        assertThrows<ProductIsOutOfStock> { canBuy(productId) }
     }
 
     override fun canSeeProductsCatalog(productIds: List<Int>) {
