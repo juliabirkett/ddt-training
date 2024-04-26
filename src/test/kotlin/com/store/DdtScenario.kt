@@ -7,9 +7,8 @@ import java.io.PrintStream
 
 val scenario by lazy {
     when (System.getenv("DDT_CONFIG")) {
-        "in-memory" -> newTestScenario(TestScenarioConfig.InMemory)
         "cli" -> newTestScenario(TestScenarioConfig.Cli)
-        else -> throw Exception("Environment variable DDT_CONFIG is not set")
+        else -> newTestScenario(TestScenarioConfig.InMemory)
     }
 }
 
