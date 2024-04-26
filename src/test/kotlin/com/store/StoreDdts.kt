@@ -3,16 +3,6 @@ package com.store
 import org.junit.jupiter.api.Test
 
 class StoreDdts {
-    private val application by lazy {
-        when (System.getenv("DDT_CONFIG")) {
-            "in-memory" -> newTestScenario(TestScenarioConfig.InMemory)
-            "cli" -> newTestScenario(TestScenarioConfig.Cli)
-            else -> throw Exception("Environment variable DDT_CONFIG is not set")
-        }
-    }
-
-    private val scenario = application
-
     @Test
     fun `a customer can buy a product that exists in the stock`() {
         val theCustomer = scenario.newCustomer()
