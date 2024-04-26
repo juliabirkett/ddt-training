@@ -44,6 +44,6 @@ class StoreDdts {
         )
 
         theQuickCustomer.canBuy(productId = 1)
-        theLateCustomer.cannotBuy(productId = 1)
+        theLateCustomer.cannotBuy(productId = 1, dueTo = ProductIsOutOfStock("ERROR! Product with id 1 is out of stock at the moment"))
     }
 }
