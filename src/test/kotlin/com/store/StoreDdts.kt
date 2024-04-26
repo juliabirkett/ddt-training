@@ -7,6 +7,7 @@ class StoreDdts {
     fun `a customer can buy a product that exists in the stock`() {
         val theCustomer = scenario.newCustomer()
         val theStoreManager = scenario.newManager()
+        theStoreManager.needToLogIn("admin123")
 
         theStoreManager.canRegisterProductArrival(
             listOf(
@@ -25,6 +26,7 @@ class StoreDdts {
         val theQuickCustomer = scenario.newCustomer()
         val theLateCustomer = scenario.newCustomer()
         val theStoreManager = scenario.newManager()
+        theStoreManager.needToLogIn("admin123")
 
         theStoreManager.canRegisterProductArrival(
             listOf(

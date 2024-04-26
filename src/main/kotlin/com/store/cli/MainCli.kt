@@ -60,21 +60,39 @@ fun managerCliApp(
     repository: StorageRepository,
 ) {
     val hub = StoreAppHub(repository)
+    val scanner = Scanner(inFun)
+
+    PrintStream(outFun).println(
+        """
+             ------------ Log in  ------------
+             
+             Are you really a manager? Type the secret!
+        """
+    )
+
+    val passwordString = scanner.nextLine().toString()
+    hub.logInAsAManager(passwordString)
 
     PrintStream(outFun).println(
         """
              ------------ Register product  ------------
-             Please enter the product details in this format:
-             
-             > id,description,quantity
-             
+             How many products do you want to register?
+        """
+    )
+    val quantityToRegister = scanner.nextLine().toInt()
+
+    PrintStream(outFun).println(
+        """
+        Please enter the product details in this format:
+
+        > id,description,quantity
         """
     )
 
-    val scanner = Scanner(inFun)
+    for (i in 0..<quantityToRegister) {
+        PrintStream(outFun).println("Registering product #$i:")
 
-    while (scanner.hasNext()) {
-        val inputString = scanner.next().toString().split(",")
+        val inputString = scanner.nextLine().toString().split(",")
         val id = inputString[0].toInt()
         val description = inputString[1]
         val quantity = inputString[2].toInt()

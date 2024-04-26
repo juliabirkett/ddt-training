@@ -24,7 +24,12 @@ class StoreAppHub(
     fun register(product: Product) {
         storage.save(product)
     }
+
+    fun logInAsAManager(password: String) {
+        if (password != "admin123") throw NotAuthenticatedAsManager()
+    }
 }
 
+class NotAuthenticatedAsManager : Throwable()
 class ProductNotFound(override val message: String) : Throwable()
 class ProductIsOutOfStock(override val message: String) : Throwable()
