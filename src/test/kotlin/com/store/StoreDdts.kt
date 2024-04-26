@@ -4,6 +4,13 @@ import org.junit.jupiter.api.Test
 
 class StoreDdts {
     @Test
+    fun `a manager that is not logged in cannot register products`() {
+        val theStoreManager = scenario.newManager()
+
+        theStoreManager.cannotRegisterOrAnything()
+    }
+
+    @Test
     fun `a customer can buy a product that exists in the stock`() {
         val theCustomer = scenario.newCustomer()
         val theStoreManager = scenario.newManager()

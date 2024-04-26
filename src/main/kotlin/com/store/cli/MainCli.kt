@@ -89,7 +89,7 @@ fun managerCliApp(
         """
     )
 
-    for (i in 0..<quantityToRegister) {
+    for (i in 0..< quantityToRegister) {
         PrintStream(outFun).println("Registering product #$i:")
 
         val inputString = scanner.nextLine().toString().split(",")
