@@ -23,6 +23,10 @@ object InMemoryStorageRepository : StorageRepository {
 
         products += product
     }
+
+    fun cleanup() {
+        products.clear()
+    }
 }
 
 fun customerCliApp(
