@@ -37,9 +37,7 @@ class CliCustomer(repository: StorageRepository) : Customer() {
     }
 
     override fun cannotBuy(productId: Int, dueTo: ErrorCode) {
-        val output = captureSystemOut {
-            canBuy(productId)
-        }
+        val output = captureSystemOut { canBuy(productId) }
 
         assertThat(output, contains(Regex(dueTo.message)))
     }

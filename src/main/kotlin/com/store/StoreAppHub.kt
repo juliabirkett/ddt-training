@@ -16,6 +16,7 @@ class StoreAppHub(
             .toResultOr { ProductNotFound }
             .map { product ->
                 if (product.quantity <= 0) return Err(ProductIsOutOfStock)
+                if (product.isForAdultsOnly()) return Err(ProductForAdultsOnly)
                 else Ok(product)
 
                 storage.save(product.reduceStock())
@@ -43,6 +44,5 @@ data object ProductIsOutOfStock : ErrorCode {
     override val message = "ERROR! Product is out of stock at the moment"
 }
 data object ProductForAdultsOnly: ErrorCode {
-    override val message: String
-        get() = TODO("Not yet implemented")
+    override val message = "ERROR! Product can only be sold to adults"
 }
