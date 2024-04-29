@@ -27,7 +27,7 @@ class StoreDdts {
             listOf(
                 Product(id = 0, description = "headphones", quantity = 13),
                 Product(id = 1, description = "keyboard", quantity = 13),
-                Product(id = 2, description = "cigarettes", quantity = 13),
+                Product(id = 2, description = "pillow", quantity = 13),
             )
         )
 
@@ -46,12 +46,26 @@ class StoreDdts {
             listOf(
                 Product(id = 0, description = "headphones", quantity = 13),
                 Product(id = 1, description = "keyboard", quantity = 1),
-                Product(id = 2, description = "cigarettes", quantity = 20),
+                Product(id = 2, description = "pillow", quantity = 20),
             )
         )
 
         theQuickCustomer.canBuy(productId = 1)
         theLateCustomer.cannotBuy(productId = 1, dueTo = ProductIsOutOfStock)
+    }
+
+    @Test
+    fun `an under-aged customer can not buy a product considered for adults`() {
+        val underagedCustomer = scenario.newCustomer()
+        val manager = scenario.newManager()
+        manager.needToLogIn("admin123")
+        manager.canRegisterProductArrival(
+            listOf(
+                Product(id = 2, description = "cigarettes", quantity = 20),
+            )
+        )
+
+        underagedCustomer.cannotBuy(productId = 2, dueTo = ProductForAdultsOnly)
     }
 
     @Test

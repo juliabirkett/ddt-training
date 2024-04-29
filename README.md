@@ -15,4 +15,4 @@ To keep it really simple, this is the good&old store app. At the moment, these a
 ### Exercises
 
 1) To improve your store's security, make sure the manager is _really_ a manager by asking for a password when they log in. If the password matches `admin123`, then we can trust they're a manager!
-2) Some products sold in your store can only be bought by adults (cigarettes, beer, wine). Make sure your store complies with the law!
+2) Some products sold in your store can only be bought by adults (e.g. cigarettes, alcohol). Make sure your store complies with the law!

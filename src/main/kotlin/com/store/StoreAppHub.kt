@@ -42,3 +42,7 @@ data object ProductNotFound : ErrorCode {
 data object ProductIsOutOfStock : ErrorCode {
     override val message = "ERROR! Product is out of stock at the moment"
 }
+data object ProductForAdultsOnly: ErrorCode {
+    override val message: String
+        get() = TODO("Not yet implemented")
+}
