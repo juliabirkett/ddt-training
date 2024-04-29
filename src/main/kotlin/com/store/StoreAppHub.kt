@@ -13,9 +13,9 @@ class StoreAppHub(
     fun catalog(): List<Product> = storage.findAll()
     fun buy(productId: Int): Result<Product, ErrorCode> =
         storage.findAll().find { it.id == productId }
-            .toResultOr { ProductNotFound("ERROR! Product with id $productId wasn't found in the catalog") }
+            .toResultOr { ProductNotFound }
             .map { product ->
-                if (product.quantity <= 0) return Err(ProductIsOutOfStock("ERROR! Product with id $productId is out of stock at the moment"))
+                if (product.quantity <= 0) return Err(ProductIsOutOfStock)
                 else Ok(product)
 
                 storage.save(product.reduceStock())
@@ -27,12 +27,18 @@ class StoreAppHub(
     }
 
     fun logInAsAManager(password: String): Result<Unit, NotAuthenticatedAsManager> =
-        if (password == "admin123") Ok(Unit) else Err(NotAuthenticatedAsManager())
+        if (password == "admin123") Ok(Unit) else Err(NotAuthenticatedAsManager)
 }
 
 sealed interface ErrorCode {
     val message: String
 }
-data class NotAuthenticatedAsManager(override val message: String = "Manager is not authenticated") : ErrorCode
-data class ProductNotFound(override val message: String) : ErrorCode
-data class ProductIsOutOfStock(override val message: String) : ErrorCode
+data object NotAuthenticatedAsManager : ErrorCode {
+    override val message = "Manager is not authenticated"
+}
+data object ProductNotFound : ErrorCode {
+    override val message = "ERROR! Product wasn't found in the catalog"
+}
+data object ProductIsOutOfStock : ErrorCode {
+    override val message = "ERROR! Product is out of stock at the moment"
+}

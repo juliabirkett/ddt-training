@@ -14,7 +14,7 @@ class StoreDdts {
     fun `a manager that is not logged in cannot register products`() {
         val theStoreManager = scenario.newManager()
 
-        theStoreManager.cannotRegisterProducts(NotAuthenticatedAsManager())
+        theStoreManager.cannotRegisterProducts(NotAuthenticatedAsManager)
     }
 
     @Test
@@ -51,13 +51,13 @@ class StoreDdts {
         )
 
         theQuickCustomer.canBuy(productId = 1)
-        theLateCustomer.cannotBuy(productId = 1, dueTo = ProductIsOutOfStock("ERROR! Product with id 1 is out of stock at the moment"))
+        theLateCustomer.cannotBuy(productId = 1, dueTo = ProductIsOutOfStock)
     }
 
     @Test
     fun `a customer can not buy a product that wasn't registered`() {
         val customer = scenario.newCustomer()
 
-        customer.cannotBuy(1, dueTo = ProductNotFound("ERROR! Product with id 1 wasn't found in the catalog"))
+        customer.cannotBuy(1, dueTo = ProductNotFound)
     }
 }
