@@ -57,6 +57,7 @@ class StoreDdts {
     @Test
     fun `an under-aged customer can not buy a product considered for adults`() {
         val underagedCustomer = scenario.newCustomer()
+        val adultCustomer = scenario.newCustomer()
         val manager = scenario.newManager()
         manager.needToLogIn("admin123")
         manager.canRegisterProductArrival(
@@ -66,6 +67,7 @@ class StoreDdts {
         )
 
         underagedCustomer.cannotBuy(productId = 2, dueTo = ProductForAdultsOnly)
+        adultCustomer.canBuy(productId = 2, customerAge = 20)
     }
 
     @Test

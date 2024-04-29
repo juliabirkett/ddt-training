@@ -9,6 +9,7 @@ import org.junit.jupiter.api.Assertions.assertEquals
 
 abstract class Customer {
     abstract fun canBuy(productId: Int)
+    abstract fun canBuy(productId: Int, customerAge: Int)
     abstract fun cannotBuy(productId: Int, dueTo: ErrorCode)
     abstract fun canSeeProductsCatalog(productIds: List<Int>)
 }
@@ -16,6 +17,10 @@ abstract class Customer {
 class InMemoryCustomer(private val hub: StoreAppHub) : Customer() {
     override fun canBuy(productId: Int) {
         hub.buy(productId)
+    }
+
+    override fun canBuy(productId: Int, customerAge: Int) {
+        TODO("Not yet implemented")
     }
 
     override fun cannotBuy(productId: Int, dueTo: ErrorCode) {
@@ -34,6 +39,10 @@ class CliCustomer(repository: StorageRepository) : Customer() {
 
     override fun canBuy(productId: Int) {
         interactWithSystemIn(productId.toString()) { app }
+    }
+
+    override fun canBuy(productId: Int, customerAge: Int) {
+        TODO("Not yet implemented")
     }
 
     override fun cannotBuy(productId: Int, dueTo: ErrorCode) {
