@@ -38,11 +38,11 @@ class CliCustomer(repository: StorageRepository) : Customer() {
     }
 
     override fun canBuy(productId: Int) {
-        interactWithSystemIn(productId.toString()) { app }
+        interactWithSystemIn("${productId}\n10\n") { app }
     }
 
     override fun canBuy(productId: Int, customerAge: Int) {
-        TODO("Not yet implemented")
+        interactWithSystemIn("$productId\n$customerAge\n") { app }
     }
 
     override fun cannotBuy(productId: Int, dueTo: ErrorCode) {

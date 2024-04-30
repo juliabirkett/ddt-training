@@ -54,9 +54,13 @@ fun customerCliApp(
     val scanner = Scanner(inFun)
 
     while (scanner.hasNext()) {
-        val id = scanner.nextInt()
+        val id = scanner.nextLine().toInt()
 
-        hub.buy(id).serialized(outFun)
+        PrintStream(outFun).println("How old are you?\n")
+
+        val age = scanner.nextLine().toInt()
+
+        hub.buy(id, age).serialized(outFun)
     }
 }
 
