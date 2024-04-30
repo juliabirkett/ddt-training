@@ -20,7 +20,7 @@ class InMemoryCustomer(private val hub: StoreAppHub) : Customer() {
     }
 
     override fun canBuy(productId: Int, customerAge: Int) {
-        TODO("Not yet implemented")
+        hub.buy(productId, customerAge)
     }
 
     override fun cannotBuy(productId: Int, dueTo: ErrorCode) {

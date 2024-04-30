@@ -23,6 +23,18 @@ class StoreAppHub(
                 product
             }
 
+    fun buy(productId: Int, customerAge: Int): Result<Product, ErrorCode> =
+        buy(productId)
+            .recoverIf(
+                { it is ProductForAdultsOnly && customerAge > 18 },
+                {
+                    val product = storage.findAll().find { it.id == productId }!!
+
+                    storage.save(product.reduceStock())
+                    product
+                }
+            )
+
     fun register(product: Product) {
         storage.save(product)
     }
