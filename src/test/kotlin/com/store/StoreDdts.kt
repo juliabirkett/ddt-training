@@ -1,6 +1,5 @@
 package com.store
 
-import com.store.cli.InMemoryStorageRepository
 import org.junit.jupiter.api.AfterEach
 import org.junit.jupiter.api.Test
 

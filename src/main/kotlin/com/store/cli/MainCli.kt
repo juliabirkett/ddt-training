@@ -1,10 +1,7 @@
 package com.store.cli
 
 import com.github.michaelbull.result.Result
-import com.store.ErrorCode
-import com.store.Product
-import com.store.StorageRepository
-import com.store.StoreAppHub
+import com.store.*
 import java.io.InputStream
 import java.io.OutputStream
 import java.io.PrintStream
@@ -12,23 +9,6 @@ import java.util.*
 
 fun main() {
     managerCliApp(repository = InMemoryStorageRepository)
-}
-
-object InMemoryStorageRepository : StorageRepository {
-    private val products = mutableListOf<Product>()
-
-    override fun findAll(): List<Product> = products
-    override fun save(product: Product) {
-        products.find { it.id == product.id }?.let { existingProduct ->
-            products.remove(existingProduct)
-        }
-
-        products += product
-    }
-
-    fun cleanup() {
-        products.clear()
-    }
 }
 
 fun customerCliApp(

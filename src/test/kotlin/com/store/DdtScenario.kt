@@ -1,6 +1,5 @@
 package com.store
 
-import com.store.cli.InMemoryStorageRepository
 import java.io.ByteArrayInputStream
 import java.io.ByteArrayOutputStream
 import java.io.PrintStream
