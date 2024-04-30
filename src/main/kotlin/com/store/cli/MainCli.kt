@@ -1,6 +1,7 @@
 package com.store.cli
 
 import com.github.michaelbull.result.Result
+import com.github.michaelbull.result.map
 import com.store.*
 import java.io.InputStream
 import java.io.OutputStream
@@ -19,8 +20,10 @@ fun customerCliApp(
     val hub = StoreAppHub(repository)
 
     val catalog = hub.catalog()
-        .joinToString("\n") { product ->
-            product.id.toString()
+        .map {
+            it.joinToString("\n") { product ->
+                product.id.toString()
+            }
         }
 
     PrintStream(outFun).println(

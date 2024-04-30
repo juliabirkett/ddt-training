@@ -1,9 +1,16 @@
 package com.store
 
 import org.junit.jupiter.api.AfterEach
+import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
+import java.time.LocalDate
 
 class StoreDdts {
+    @BeforeEach
+    fun setupUser() {
+        scenario.resetUserSession()
+    }
+
     @AfterEach
     fun tearDownDb() {
         InMemoryStorageRepository.cleanup()
@@ -13,14 +20,22 @@ class StoreDdts {
     fun `a manager that is not logged in cannot register products`() {
         val theStoreManager = scenario.newManager()
 
-        theStoreManager.cannotRegisterProducts(NotAuthenticatedAsManager)
+        theStoreManager.cannotRegisterProducts(NotAuthenticated)
+    }
+
+    @Test
+    fun `a customer that is not logged in cannot see the catalog`() {
+        val theCustomer = scenario.newCustomer()
+
+        theCustomer.cannotSeeProductsCatalog(NotAuthenticated)
     }
 
     @Test
     fun `a customer can buy a product that exists in the stock`() {
         val theCustomer = scenario.newCustomer()
         val theStoreManager = scenario.newManager()
-        theStoreManager.needToLogIn("admin123")
+        theStoreManager.logsIn("admin123")
+        theCustomer.logsIn("customer123", LocalDate.parse("1990-02-20"))
 
         theStoreManager.canRegisterProductArrival(
             listOf(
@@ -39,7 +54,9 @@ class StoreDdts {
         val theQuickCustomer = scenario.newCustomer()
         val theLateCustomer = scenario.newCustomer()
         val theStoreManager = scenario.newManager()
-        theStoreManager.needToLogIn("admin123")
+        theQuickCustomer.logsIn("customer123", LocalDate.parse("1990-02-20"))
+        theLateCustomer.logsIn("customer123", LocalDate.parse("1999-12-23"))
+        theStoreManager.logsIn("admin123")
 
         theStoreManager.canRegisterProductArrival(
             listOf(
@@ -58,7 +75,9 @@ class StoreDdts {
         val underagedCustomer = scenario.newCustomer()
         val adultCustomer = scenario.newCustomer()
         val manager = scenario.newManager()
-        manager.needToLogIn("admin123")
+        underagedCustomer.logsIn("customer123", LocalDate.parse("2019-02-20"))
+        adultCustomer.logsIn("customer123", LocalDate.parse("1987-09-01"))
+        manager.logsIn("admin123")
         manager.canRegisterProductArrival(
             listOf(
                 Product(id = 2, description = "cigarettes", quantity = 20),
@@ -72,6 +91,7 @@ class StoreDdts {
     @Test
     fun `a customer can not buy a product that wasn't registered`() {
         val customer = scenario.newCustomer()
+        customer.logsIn("customer123", LocalDate.parse("1990-02-20"))
 
         customer.cannotBuy(1, dueTo = ProductNotFound)
     }

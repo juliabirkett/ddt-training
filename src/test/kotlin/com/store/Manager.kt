@@ -8,14 +8,14 @@ import com.store.cli.managerCliApp
 
 abstract class Manager {
     abstract fun canRegisterProductArrival(products: List<Product>)
-    abstract fun needToLogIn(password: String)
-    abstract fun cannotRegisterProducts(dueTo: NotAuthenticatedAsManager)
+    abstract fun logsIn(password: String)
+    abstract fun cannotRegisterProducts(dueTo: NotAuthenticated)
 }
 
 class InMemoryManager(private val hub: StoreAppHub) : Manager() {
-    override fun needToLogIn(password: String) { hub.logInAsAManager(password) }
+    override fun logsIn(password: String) { hub.logInAsAManager(password) }
 
-    override fun cannotRegisterProducts(dueTo: NotAuthenticatedAsManager) {
+    override fun cannotRegisterProducts(dueTo: NotAuthenticated) {
         assertThat(hub.logInAsAManager("invalid-password"), equalTo(Err(dueTo)))
     }
 
@@ -32,11 +32,11 @@ class CliManager(repository: StorageRepository) : Manager() {
         allTheCommands.clear()
     }
 
-    override fun needToLogIn(password: String) {
+    override fun logsIn(password: String) {
         allTheCommands.add(password)
     }
 
-    override fun cannotRegisterProducts(dueTo: NotAuthenticatedAsManager) {
+    override fun cannotRegisterProducts(dueTo: NotAuthenticated) {
         val output = captureSystemOut {
             interactWithSystemIn("invalid-password") { app }
         }

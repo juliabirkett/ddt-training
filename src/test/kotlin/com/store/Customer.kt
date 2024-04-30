@@ -1,26 +1,30 @@
 package com.store
 
 import com.github.michaelbull.result.Err
+import com.github.michaelbull.result.map
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.contains
 import com.natpryce.hamkrest.equalTo
 import com.store.cli.customerCliApp
 import org.junit.jupiter.api.Assertions.assertEquals
+import java.time.LocalDate
 
 abstract class Customer {
     abstract fun canBuy(productId: Int)
     abstract fun canBuy(productId: Int, customerAge: Int)
     abstract fun cannotBuy(productId: Int, dueTo: ErrorCode)
     abstract fun canSeeProductsCatalog(productIds: List<Int>)
+    abstract fun logsIn(password: String, birthday: LocalDate)
+    abstract fun cannotSeeProductsCatalog(dueTo: ErrorCode)
 }
 
 class InMemoryCustomer(private val hub: StoreAppHub) : Customer() {
     override fun canBuy(productId: Int) {
-        hub.buy(productId)
+        assertThat(hub.buy(productId).isOk, equalTo(true))
     }
 
     override fun canBuy(productId: Int, customerAge: Int) {
-        hub.buy(productId, customerAge)
+        assertThat(hub.buy(productId, customerAge).isOk, equalTo(true))
     }
 
     override fun cannotBuy(productId: Int, dueTo: ErrorCode) {
@@ -28,7 +32,17 @@ class InMemoryCustomer(private val hub: StoreAppHub) : Customer() {
     }
 
     override fun canSeeProductsCatalog(productIds: List<Int>) {
-        assertEquals(productIds, hub.catalog().map { it.id })
+        hub.catalog().map { products ->
+            assertEquals(productIds, products.map { it.id })
+        }
+    }
+
+    override fun logsIn(password: String, birthday: LocalDate) {
+        assertThat(hub.logInAsACustomer(password, birthday).isOk, equalTo(true))
+    }
+
+    override fun cannotSeeProductsCatalog(dueTo: ErrorCode) {
+        assertThat(hub.catalog(), equalTo(Err(dueTo)))
     }
 }
 
@@ -57,5 +71,13 @@ class CliCustomer(repository: StorageRepository) : Customer() {
         productIds.forEach { id ->
             assertThat(output, contains(Regex(id.toString())))
         }
+    }
+
+    override fun logsIn(password: String, birthday: LocalDate) {
+        TODO("Not yet implemented")
+    }
+
+    override fun cannotSeeProductsCatalog(dueTo: ErrorCode) {
+        TODO("Not yet implemented")
     }
 }

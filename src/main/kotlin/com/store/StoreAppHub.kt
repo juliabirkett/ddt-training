@@ -1,17 +1,30 @@
 package com.store
 
 import com.github.michaelbull.result.*
+import java.time.LocalDate
 
 interface StorageRepository {
     fun findAll(): List<Product>
     fun save(product: Product)
 }
 
+sealed interface UserSession
+object NoSessionUser : UserSession
+object AuthenticatedManager : UserSession
+object AuthenticatedCustomer : UserSession
+
 class StoreAppHub(
     private val storage: StorageRepository
 ) {
-    fun catalog(): List<Product> = storage.findAll()
-    fun buy(productId: Int): Result<Product, ErrorCode> =
+    private var userSession: UserSession = NoSessionUser
+
+    fun catalog(): Result<List<Product>, NotAuthenticated> = if (userSession !is AuthenticatedCustomer)
+        Err(NotAuthenticated)
+    else Ok(storage.findAll())
+
+    fun buy(productId: Int): Result<Product, ErrorCode> = if (userSession !is AuthenticatedCustomer)
+        Err(NotAuthenticated)
+    else
         storage.findAll().find { it.id == productId }
             .toResultOr { ProductNotFound }
             .map { product ->
@@ -35,18 +48,27 @@ class StoreAppHub(
                 }
             )
 
-    fun register(product: Product) {
-        storage.save(product)
-    }
+    fun register(product: Product) { storage.save(product) }
 
-    fun logInAsAManager(password: String): Result<Unit, NotAuthenticatedAsManager> =
-        if (password == "admin123") Ok(Unit) else Err(NotAuthenticatedAsManager)
+    fun logInAsAManager(password: String): Result<Unit, NotAuthenticated> =
+        if (password == "admin123") Ok(Unit) else Err(NotAuthenticated)
+
+    fun logInAsACustomer(password: String, birthday: LocalDate): Result<Unit, NotAuthenticated> =
+        if (password == "customer123") {
+            userSession = AuthenticatedCustomer
+
+            Ok(Unit)
+        } else Err(NotAuthenticated)
+
+    fun resetSession() {
+        userSession = NoSessionUser
+    }
 }
 
 sealed interface ErrorCode {
     val message: String
 }
-data object NotAuthenticatedAsManager : ErrorCode {
+data object NotAuthenticated : ErrorCode {
     override val message = "Manager is not authenticated"
 }
 data object ProductNotFound : ErrorCode {

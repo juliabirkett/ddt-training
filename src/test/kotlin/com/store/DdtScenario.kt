@@ -23,17 +23,23 @@ fun newTestScenario(config: TestScenarioConfig) : DdtScenario = when (config) {
 }
 
 abstract class DdtScenario {
+    abstract fun resetUserSession()
     abstract fun newCustomer(): Customer
     abstract fun newManager(): Manager
 }
 
 class InMemoryScenario(val hub: StoreAppHub) : DdtScenario() {
+    override fun resetUserSession() { hub.resetSession() }
     override fun newCustomer(): Customer = InMemoryCustomer(hub)
     override fun newManager(): Manager = InMemoryManager(hub)
 }
 
 class CliScenario: DdtScenario() {
     private val repository = InMemoryStorageRepository
+
+    override fun resetUserSession() {
+        TODO("Not yet implemented")
+    }
 
     override fun newCustomer(): Customer = CliCustomer(repository)
 
