@@ -17,7 +17,7 @@ fun customerCliApp(
     outFun: OutputStream = System.out,
     repository: StorageRepository,
 ) {
-    val hub = StoreAppHub(repository)
+    val hub = CustomerAppHub(repository)
 
     val catalog = hub.catalog()
         .map {
@@ -58,7 +58,7 @@ fun managerCliApp(
     outFun: OutputStream = System.out,
     repository: StorageRepository,
 ) {
-    val hub = StoreAppHub(repository)
+    val hub = ManagerAppHub(repository)
     val scanner = Scanner(inFun)
 
     PrintStream(outFun).println(
@@ -70,7 +70,7 @@ fun managerCliApp(
     )
 
     val passwordString = scanner.nextLine().toString()
-    val loggedIn = hub.logInAsAManager(passwordString)
+    val loggedIn = hub.logIn(passwordString)
 
     if (loggedIn.isErr) {
         loggedIn.serialized(outFun)

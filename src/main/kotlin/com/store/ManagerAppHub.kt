@@ -13,7 +13,7 @@ object NoSessionUser : UserSession
 object AuthenticatedManager : UserSession
 object AuthenticatedCustomer : UserSession
 
-class StoreAppHub(
+class CustomerAppHub(
     private val storage: StorageRepository
 ) {
     private var userSession: UserSession = NoSessionUser
@@ -48,17 +48,27 @@ class StoreAppHub(
                 }
             )
 
-    fun register(product: Product) { storage.save(product) }
-
-    fun logInAsAManager(password: String): Result<Unit, NotAuthenticated> =
-        if (password == "admin123") Ok(Unit) else Err(NotAuthenticated)
-
-    fun logInAsACustomer(password: String, birthday: LocalDate): Result<Unit, NotAuthenticated> =
+    fun logIn(password: String, birthday: LocalDate): Result<Unit, NotAuthenticated> =
         if (password == "customer123") {
             userSession = AuthenticatedCustomer
 
             Ok(Unit)
         } else Err(NotAuthenticated)
+
+    fun resetSession() {
+        userSession = NoSessionUser
+    }
+}
+
+class ManagerAppHub(
+    private val storage: StorageRepository
+) {
+    private var userSession: UserSession = NoSessionUser
+
+    fun register(product: Product) { storage.save(product) }
+
+    fun logIn(password: String): Result<Unit, NotAuthenticated> =
+        if (password == "admin123") Ok(Unit) else Err(NotAuthenticated)
 
     fun resetSession() {
         userSession = NoSessionUser

@@ -12,11 +12,11 @@ abstract class Manager {
     abstract fun cannotRegisterProducts(dueTo: NotAuthenticated)
 }
 
-class InMemoryManager(private val hub: StoreAppHub) : Manager() {
-    override fun logsIn(password: String) { hub.logInAsAManager(password) }
+class InMemoryManager(private val hub: ManagerAppHub) : Manager() {
+    override fun logsIn(password: String) { hub.logIn(password) }
 
     override fun cannotRegisterProducts(dueTo: NotAuthenticated) {
-        assertThat(hub.logInAsAManager("invalid-password"), equalTo(Err(dueTo)))
+        assertThat(hub.logIn("invalid-password"), equalTo(Err(dueTo)))
     }
 
     override fun canRegisterProductArrival(products: List<Product>) = products.forEach { hub.register(it) }

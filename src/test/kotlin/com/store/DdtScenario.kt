@@ -17,7 +17,8 @@ enum class TestScenarioConfig {
 
 fun newTestScenario(config: TestScenarioConfig) : DdtScenario = when (config) {
     TestScenarioConfig.InMemory -> InMemoryScenario(
-        hub = StoreAppHub(InMemoryStorageRepository)
+        customerAppHub = CustomerAppHub(InMemoryStorageRepository),
+        managerHub = ManagerAppHub(InMemoryStorageRepository),
     )
     TestScenarioConfig.Cli -> CliScenario()
 }
@@ -28,10 +29,13 @@ abstract class DdtScenario {
     abstract fun newManager(): Manager
 }
 
-class InMemoryScenario(val hub: StoreAppHub) : DdtScenario() {
-    override fun resetUserSession() { hub.resetSession() }
-    override fun newCustomer(): Customer = InMemoryCustomer(hub)
-    override fun newManager(): Manager = InMemoryManager(hub)
+class InMemoryScenario(val customerAppHub: CustomerAppHub, val managerHub: ManagerAppHub) : DdtScenario() {
+    override fun resetUserSession() {
+        customerAppHub.resetSession()
+        managerHub.resetSession()
+    }
+    override fun newCustomer(): Customer = InMemoryCustomer(customerAppHub)
+    override fun newManager(): Manager = InMemoryManager(managerHub)
 }
 
 class CliScenario: DdtScenario() {

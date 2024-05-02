@@ -18,7 +18,7 @@ abstract class Customer {
     abstract fun cannotSeeProductsCatalog(dueTo: ErrorCode)
 }
 
-class InMemoryCustomer(private val hub: StoreAppHub) : Customer() {
+class InMemoryCustomer(private val hub: CustomerAppHub) : Customer() {
     override fun canBuy(productId: Int) {
         assertThat(hub.buy(productId), wasSuccessful)
     }
@@ -38,7 +38,7 @@ class InMemoryCustomer(private val hub: StoreAppHub) : Customer() {
     }
 
     override fun logsIn(password: String, birthday: LocalDate) {
-        assertThat(hub.logInAsACustomer(password, birthday), wasSuccessful)
+        assertThat(hub.logIn(password, birthday), wasSuccessful)
     }
 
     override fun cannotSeeProductsCatalog(dueTo: ErrorCode) {
