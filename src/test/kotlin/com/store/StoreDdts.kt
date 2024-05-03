@@ -1,16 +1,10 @@
 package com.store
 
 import org.junit.jupiter.api.AfterEach
-import org.junit.jupiter.api.BeforeEach
 import org.junit.jupiter.api.Test
 import java.time.LocalDate
 
 class StoreDdts {
-    @BeforeEach
-    fun setupUser() {
-        scenario.resetUserSession()
-    }
-
     @AfterEach
     fun tearDownDb() {
         InMemoryStorageRepository.cleanup()

@@ -24,24 +24,17 @@ fun newTestScenario(config: TestScenarioConfig) : DdtScenario = when (config) {
 }
 
 abstract class DdtScenario {
-    abstract fun resetUserSession()
     abstract fun newCustomer(): Customer
     abstract fun newManager(): Manager
 }
 
 class InMemoryScenario(val customerAppHub: CustomerAppHub, val managerHub: ManagerAppHub) : DdtScenario() {
-    override fun resetUserSession() {
-        customerAppHub.resetSession()
-        managerHub.resetSession()
-    }
     override fun newCustomer(): Customer = InMemoryCustomer(customerAppHub)
     override fun newManager(): Manager = InMemoryManager(managerHub)
 }
 
 class CliScenario: DdtScenario() {
     private val repository = InMemoryStorageRepository
-
-    override fun resetUserSession() { }
 
     override fun newCustomer(): Customer = CliCustomer(repository)
 

@@ -54,26 +54,15 @@ class CustomerAppHub(
 
             Ok(Unit)
         } else Err(NotAuthenticated)
-
-    // DONEXT: remove this?
-    fun resetSession() {
-        storage.save(NoSessionUser)
-    }
 }
 
 class ManagerAppHub(
     private val storage: StorageRepository
 ) {
-    private var userSession: UserSession = NoSessionUser
-
     fun register(product: Product): Result<Unit, ErrorCode> = Ok(storage.save(product))
 
     fun logIn(password: String): Result<Unit, NotAuthenticated> =
         if (password == "admin123") Ok(Unit) else Err(NotAuthenticated)
-
-    fun resetSession() {
-        userSession = NoSessionUser
-    }
 }
 
 sealed interface ErrorCode {

@@ -84,6 +84,10 @@ class CliCustomer(private val repository: StorageRepository) : Customer() {
     }
 
     override fun cannotSeeProductsCatalog(dueTo: ErrorCode) {
-        TODO("Not yet implemented")
+        val output = captureSystemOut {
+            interactWithSystemIn("show-catalog") { app(repository) }
+        }
+
+        assertThat(output, contains(Regex(dueTo.message)))
     }
 }

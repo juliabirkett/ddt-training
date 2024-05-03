@@ -21,5 +21,6 @@ object InMemoryStorageRepository : StorageRepository {
 
     fun cleanup() {
         products.clear()
+        loggedUser = NoSessionUser
     }
 }
