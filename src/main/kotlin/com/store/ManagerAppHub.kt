@@ -45,13 +45,13 @@ class CustomerAppHub(
         else
             storage.findAll().find { it.id == productId }
                 .toResultOr { ProductNotFound }
-                .map { product ->
-                    if (product.quantity <= 0) return Err(ProductIsOutOfStock)
-                    if (product.isForAdultsOnly() && !loggedUser.isLegalAged) return Err(ProductForAdultsOnly)
-                    else Ok(product)
+                .flatMap { product ->
+                    product.buy(loggedUser::isLegalAged)
+                        .map { updatedProduct ->
+                            storage.save(updatedProduct)
 
-                    storage.save(product.reduceStock())
-                    product
+                            updatedProduct
+                        }
                 }
     }
 
