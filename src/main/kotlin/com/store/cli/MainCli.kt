@@ -14,7 +14,10 @@ class ManagerLoginCommand(override val value: String) : Command(value)
 class CustomerLoginCommand(override val value: String) : Command(value)
 class RegisterProductCommand(override val value: String) : Command(value)
 class ShowCatalogCommand(override val value: String) : Command(value)
-class BuyProductCommand(override val value: String) : Command(value)
+
+sealed class BuyProductCommand(override val value: String) : Command(value)
+class BuyAdultProductCommand(override val value: String) : BuyProductCommand(value)
+class BuyNormalProductCommand(override val value: String) : BuyProductCommand(value)
 
 class CommandParser {
     fun parse(command: String): Command = when {
@@ -22,7 +25,10 @@ class CommandParser {
         command.startsWith("customer-login") -> CustomerLoginCommand(command.removePrefix("customer-login "))
         command.startsWith("register-product") -> RegisterProductCommand(command.removePrefix("register-product "))
         command.startsWith("show-catalog") -> ShowCatalogCommand(command.removePrefix("show-catalog "))
-        command.startsWith("buy") -> BuyProductCommand(command.removePrefix("buy "))
+        command.startsWith("buy") ->
+            if (command.removePrefix("buy ").contains(","))
+                BuyAdultProductCommand(command.removePrefix("buy "))
+            else BuyNormalProductCommand(command.removePrefix("buy "))
         else -> TODO("Could not parse command!")
     }
 }
@@ -64,11 +70,21 @@ fun app(
                     success = { products -> products.joinToString { it.id.toString() } },
                     failure = { it.message }
                 )
-            is BuyProductCommand -> customerHub.buy(command.value.toInt())
+            is BuyNormalProductCommand -> customerHub.buy(command.value.toInt())
                 .mapBoth(
                     success = { "Product bought! ${command.value}" },
                     failure = { it.message }
                 )
+            is BuyAdultProductCommand -> {
+                val commandString = command.value.split(",")
+
+                customerHub
+                    .buy(commandString[0].trim().toInt(), commandString[1].trim().toInt())
+                    .mapBoth(
+                        success = { "Product bought! ${command.value}" },
+                        failure = { it.message }
+                    )
+            }
         }
     }
 
