@@ -16,10 +16,15 @@ enum class TestScenarioConfig {
 }
 
 fun newTestScenario(config: TestScenarioConfig) : DdtScenario = when (config) {
-    TestScenarioConfig.InMemory -> InMemoryScenario(
-        customerAppHub = CustomerAppHub(InMemoryStorageRepository),
-        managerHub = ManagerAppHub(InMemoryStorageRepository),
-    )
+    TestScenarioConfig.InMemory -> {
+        val storage = InMemoryStorageRepository
+        val userManager = InMemoryUserManagerRepository
+
+        InMemoryScenario(
+            customerAppHub = CustomerAppHub(storage, userManager),
+            managerHub = ManagerAppHub(storage, userManager),
+        )
+    }
     TestScenarioConfig.Cli -> CliScenario()
 }
 
@@ -35,10 +40,11 @@ class InMemoryScenario(val customerAppHub: CustomerAppHub, val managerHub: Manag
 
 class CliScenario: DdtScenario() {
     private val repository = InMemoryStorageRepository
+    private val userRepository = InMemoryUserManagerRepository
 
-    override fun newCustomer(): Customer = CliCustomer(repository)
+    override fun newCustomer(): Customer = CliCustomer(repository, userRepository)
 
-    override fun newManager(): Manager = CliManager(repository)
+    override fun newManager(): Manager = CliManager(repository, userRepository)
 }
 
 fun captureSystemOut(operation: () -> Unit) : String = ByteArrayOutputStream().use {

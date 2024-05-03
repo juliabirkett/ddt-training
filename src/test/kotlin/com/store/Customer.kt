@@ -46,10 +46,13 @@ class InMemoryCustomer(private val hub: CustomerAppHub) : Customer() {
     }
 }
 
-class CliCustomer(private val repository: StorageRepository) : Customer() {
+class CliCustomer(
+    private val storage: StorageRepository,
+    private val userManager: UserManagerRepository,
+) : Customer() {
     override fun canBuy(productId: Int) {
         val output = captureSystemOut {
-            interactWithSystemIn("buy $productId") { app(repository) }
+            interactWithSystemIn("buy $productId") { app(storage, userManager) }
         }
 
         assertThat(output, contains(Regex("Product bought! $productId")))
@@ -57,7 +60,7 @@ class CliCustomer(private val repository: StorageRepository) : Customer() {
 
     override fun canBuy(productId: Int, customerAge: Int) {
         val output = captureSystemOut {
-            interactWithSystemIn("buy $productId, $customerAge") { app(repository) }
+            interactWithSystemIn("buy $productId, $customerAge") { app(storage, userManager) }
         }
 
         assertThat(output, contains(Regex("Product bought! $productId")))
@@ -65,7 +68,7 @@ class CliCustomer(private val repository: StorageRepository) : Customer() {
 
     override fun cannotBuy(productId: Int, dueTo: ErrorCode) {
         val output = captureSystemOut {
-            interactWithSystemIn("buy $productId") { app(repository) }
+            interactWithSystemIn("buy $productId") { app(storage, userManager) }
         }
 
         assertThat(output, contains(Regex(dueTo.message)))
@@ -73,7 +76,7 @@ class CliCustomer(private val repository: StorageRepository) : Customer() {
 
     override fun canSeeProductsCatalog(productIds: List<Int>) {
         val output = captureSystemOut {
-            interactWithSystemIn("show-catalog") { app(repository) }
+            interactWithSystemIn("show-catalog") { app(storage, userManager) }
         }
 
         productIds.forEach { id ->
@@ -83,7 +86,7 @@ class CliCustomer(private val repository: StorageRepository) : Customer() {
 
     override fun logsIn(password: String, birthday: LocalDate) {
         val output = captureSystemOut {
-            interactWithSystemIn("customer-login $password") { app(repository) }
+            interactWithSystemIn("customer-login $password") { app(storage, userManager) }
         }
 
         assertThat(output, contains(Regex("Logged in successfully!")))
@@ -91,7 +94,7 @@ class CliCustomer(private val repository: StorageRepository) : Customer() {
 
     override fun cannotSeeProductsCatalog(dueTo: ErrorCode) {
         val output = captureSystemOut {
-            interactWithSystemIn("show-catalog") { app(repository) }
+            interactWithSystemIn("show-catalog") { app(storage, userManager) }
         }
 
         assertThat(output, contains(Regex(dueTo.message)))

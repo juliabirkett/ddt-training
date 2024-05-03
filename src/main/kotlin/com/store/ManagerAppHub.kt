@@ -6,23 +6,28 @@ import java.time.LocalDate
 interface StorageRepository {
     fun findAll(): List<Product>
     fun save(product: Product)
+}
+
+interface UserManagerRepository {
     fun save(userSession: UserSession)
-    fun getLoggedUser(): UserSession
+    fun getLoggedCustomer(): UserSession
+    fun getLoggedManager(): UserSession
 }
 
 sealed interface UserSession
-object NoSessionUser : UserSession
-object AuthenticatedManager : UserSession
-object AuthenticatedCustomer : UserSession
+data object NoSessionUser : UserSession
+data object AuthenticatedManager : UserSession
+data object AuthenticatedCustomer : UserSession
 
 class CustomerAppHub(
-    private val storage: StorageRepository
+    private val storage: StorageRepository,
+    private val userStorage: UserManagerRepository,
 ) {
-    fun catalog(): Result<List<Product>, NotAuthenticated> = if (storage.getLoggedUser() is NoSessionUser)
+    fun catalog(): Result<List<Product>, NotAuthenticated> = if (userStorage.getLoggedCustomer() !is AuthenticatedCustomer)
         Err(NotAuthenticated)
     else Ok(storage.findAll())
 
-    fun buy(productId: Int): Result<Product, ErrorCode> = if (storage.getLoggedUser() is NoSessionUser)
+    fun buy(productId: Int): Result<Product, ErrorCode> = if (userStorage.getLoggedCustomer() !is AuthenticatedCustomer)
         Err(NotAuthenticated)
     else
         storage.findAll().find { it.id == productId }
@@ -50,22 +55,23 @@ class CustomerAppHub(
 
     fun logIn(password: String, birthday: LocalDate): Result<Unit, NotAuthenticated> =
         if (password == "customer123") {
-            storage.save(AuthenticatedCustomer)
+            userStorage.save(AuthenticatedCustomer)
 
             Ok(Unit)
         } else Err(NotAuthenticated)
 }
 
 class ManagerAppHub(
-    private val storage: StorageRepository
+    private val storage: StorageRepository,
+    private val userStorage: UserManagerRepository,
 ) {
-    fun register(product: Product): Result<Unit, ErrorCode> =  if (storage.getLoggedUser() is NoSessionUser)
+    fun register(product: Product): Result<Unit, ErrorCode> =  if (userStorage.getLoggedManager() !is AuthenticatedManager)
         Err(NotAuthenticated)
     else
         Ok(storage.save(product))
 
     fun logIn(password: String): Result<Unit, NotAuthenticated> =
-        if (password == "admin123") Ok(Unit) else Err(NotAuthenticated)
+        if (password == "admin123") Ok(userStorage.save(AuthenticatedManager)) else Err(NotAuthenticated)
 }
 
 sealed interface ErrorCode {

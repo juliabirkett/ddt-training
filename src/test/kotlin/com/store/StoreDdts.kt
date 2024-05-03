@@ -8,6 +8,7 @@ class StoreDdts {
     @AfterEach
     fun tearDownDb() {
         InMemoryStorageRepository.cleanup()
+        InMemoryUserManagerRepository.cleanup()
     }
 
     @Test

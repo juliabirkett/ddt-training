@@ -1,10 +1,7 @@
 package com.store.cli
 
 import com.github.michaelbull.result.mapBoth
-import com.store.CustomerAppHub
-import com.store.ManagerAppHub
-import com.store.Product
-import com.store.StorageRepository
+import com.store.*
 import java.io.PrintStream
 import java.time.LocalDate
 import java.util.*
@@ -35,9 +32,10 @@ class CommandParser {
 
 fun app(
     repository: StorageRepository,
+    userStorage: UserManagerRepository,
 ) {
-    val managerHub = ManagerAppHub(repository)
-    val customerHub = CustomerAppHub(repository)
+    val managerHub = ManagerAppHub(repository, userStorage)
+    val customerHub = CustomerAppHub(repository, userStorage)
 
     val output: String = with(Scanner(System.`in`).nextLine()) {
         when (val command = CommandParser().parse(this)) {

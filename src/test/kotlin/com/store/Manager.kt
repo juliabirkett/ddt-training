@@ -23,10 +23,13 @@ class InMemoryManager(private val hub: ManagerAppHub) : Manager() {
     override fun canRegisterProductArrival(products: List<Product>) = products.forEach { hub.register(it) }
 }
 
-class CliManager(private val repository: StorageRepository) : Manager() {
+class CliManager(
+    private val storage: StorageRepository,
+    private val userManager: UserManagerRepository,
+) : Manager() {
     override fun logsIn(password: String) {
         val output = captureSystemOut {
-            interactWithSystemIn("manager-login $password") { app(repository) }
+            interactWithSystemIn("manager-login $password") { app(storage, userManager) }
         }
 
         assertThat(output, contains(Regex("Logged in successfully!")))
@@ -34,7 +37,7 @@ class CliManager(private val repository: StorageRepository) : Manager() {
 
     override fun cannotRegisterProducts(dueTo: NotAuthenticated) {
         val output = captureSystemOut {
-            interactWithSystemIn("register-product 1,testing,10") { app(repository) }
+            interactWithSystemIn("register-product 1,testing,10") { app(storage, userManager) }
         }
 
         assertThat(output, contains(Regex(dueTo.message)))
@@ -43,7 +46,7 @@ class CliManager(private val repository: StorageRepository) : Manager() {
     override fun canRegisterProductArrival(products: List<Product>) {
         val outputs: List<String> = products.map { product ->
             captureSystemOut {
-                interactWithSystemIn("register-product ${product.id},${product.description},${product.quantity}") { app(repository) }
+                interactWithSystemIn("register-product ${product.id},${product.description},${product.quantity}") { app(storage, userManager) }
             }
         }
 

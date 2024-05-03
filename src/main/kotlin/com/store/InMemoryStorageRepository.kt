@@ -2,7 +2,6 @@ package com.store
 
 object InMemoryStorageRepository : StorageRepository {
     private val products = mutableListOf<Product>()
-    private var loggedUser: UserSession = NoSessionUser
 
     override fun findAll(): List<Product> = products
     override fun save(product: Product) {
@@ -13,14 +12,7 @@ object InMemoryStorageRepository : StorageRepository {
         products += product
     }
 
-    override fun save(userSession: UserSession) {
-        loggedUser = userSession
-    }
-
-    override fun getLoggedUser(): UserSession = loggedUser
-
     fun cleanup() {
         products.clear()
-        loggedUser = NoSessionUser
     }
 }
