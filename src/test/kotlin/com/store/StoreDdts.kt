@@ -71,7 +71,6 @@ class StoreDdts {
         val adultCustomer = scenario.newCustomer()
         val manager = scenario.newManager()
         underagedCustomer.logsIn("customer123", LocalDate.parse("2019-02-20"))
-        adultCustomer.logsIn("customer123", LocalDate.parse("1987-09-01"))
         manager.logsIn("admin123")
         manager.canRegisterProductArrival(
             listOf(
@@ -80,7 +79,8 @@ class StoreDdts {
         )
 
         underagedCustomer.cannotBuy(productId = 2, dueTo = ProductForAdultsOnly)
-        adultCustomer.canBuy(productId = 2, customerAge = 20)
+        adultCustomer.logsIn("customer123", LocalDate.parse("1987-09-01"))
+        adultCustomer.canBuy(productId = 2)
     }
 
     @Test

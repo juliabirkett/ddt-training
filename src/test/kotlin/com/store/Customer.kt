@@ -11,7 +11,6 @@ import java.time.LocalDate
 
 abstract class Customer {
     abstract fun canBuy(productId: Int)
-    abstract fun canBuy(productId: Int, customerAge: Int)
     abstract fun cannotBuy(productId: Int, dueTo: ErrorCode)
     abstract fun canSeeProductsCatalog(productIds: List<Int>)
     abstract fun logsIn(password: String, birthday: LocalDate)
@@ -21,10 +20,6 @@ abstract class Customer {
 class InMemoryCustomer(private val hub: CustomerAppHub) : Customer() {
     override fun canBuy(productId: Int) {
         assertThat(hub.buy(productId), wasSuccessful)
-    }
-
-    override fun canBuy(productId: Int, customerAge: Int) {
-        assertThat(hub.buy(productId, customerAge), wasSuccessful)
     }
 
     override fun cannotBuy(productId: Int, dueTo: ErrorCode) {
@@ -58,14 +53,6 @@ class CliCustomer(
         assertThat(output, contains(Regex("Product bought! $productId")))
     }
 
-    override fun canBuy(productId: Int, customerAge: Int) {
-        val output = captureSystemOut {
-            interactWithSystemIn("buy $productId, $customerAge") { app(storage, userManager) }
-        }
-
-        assertThat(output, contains(Regex("Product bought! $productId")))
-    }
-
     override fun cannotBuy(productId: Int, dueTo: ErrorCode) {
         val output = captureSystemOut {
             interactWithSystemIn("buy $productId") { app(storage, userManager) }
@@ -86,7 +73,7 @@ class CliCustomer(
 
     override fun logsIn(password: String, birthday: LocalDate) {
         val output = captureSystemOut {
-            interactWithSystemIn("customer-login $password") { app(storage, userManager) }
+            interactWithSystemIn("customer-login $password,$birthday") { app(storage, userManager) }
         }
 
         assertThat(output, contains(Regex("Logged in successfully!")))

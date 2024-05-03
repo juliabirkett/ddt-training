@@ -2,6 +2,7 @@ package com.store
 
 import com.github.michaelbull.result.*
 import java.time.LocalDate
+import java.time.temporal.ChronoUnit
 
 interface StorageRepository {
     fun findAll(): List<Product>
@@ -17,7 +18,9 @@ interface UserManagerRepository {
 sealed interface UserSession
 data object NoSessionUser : UserSession
 data object AuthenticatedManager : UserSession
-data object AuthenticatedCustomer : UserSession
+data class AuthenticatedCustomer(val birthday: LocalDate) : UserSession {
+    val isLegalAged: Boolean = ChronoUnit.YEARS.between(birthday, LocalDate.now()) >= 18
+}
 
 class CustomerAppHub(
     private val storage: StorageRepository,
@@ -27,35 +30,27 @@ class CustomerAppHub(
         Err(NotAuthenticated)
     else Ok(storage.findAll())
 
-    fun buy(productId: Int): Result<Product, ErrorCode> = if (userStorage.getLoggedCustomer() !is AuthenticatedCustomer)
-        Err(NotAuthenticated)
-    else
-        storage.findAll().find { it.id == productId }
-            .toResultOr { ProductNotFound }
-            .map { product ->
-                if (product.quantity <= 0) return Err(ProductIsOutOfStock)
-                if (product.isForAdultsOnly()) return Err(ProductForAdultsOnly)
-                else Ok(product)
+    fun buy(productId: Int): Result<Product, ErrorCode> {
+        val loggedUser = userStorage.getLoggedCustomer()
 
-                storage.save(product.reduceStock())
-                product
-            }
-
-    fun buy(productId: Int, customerAge: Int): Result<Product, ErrorCode> =
-        buy(productId)
-            .recoverIf(
-                { it is ProductForAdultsOnly && customerAge > 18 },
-                {
-                    val product = storage.findAll().find { it.id == productId }!!
+        return if (loggedUser !is AuthenticatedCustomer)
+            Err(NotAuthenticated)
+        else
+            storage.findAll().find { it.id == productId }
+                .toResultOr { ProductNotFound }
+                .map { product ->
+                    if (product.quantity <= 0) return Err(ProductIsOutOfStock)
+                    if (product.isForAdultsOnly() && !loggedUser.isLegalAged) return Err(ProductForAdultsOnly)
+                    else Ok(product)
 
                     storage.save(product.reduceStock())
                     product
                 }
-            )
+    }
 
     fun logIn(password: String, birthday: LocalDate): Result<Unit, NotAuthenticated> =
         if (password == "customer123") {
-            userStorage.save(AuthenticatedCustomer)
+            userStorage.save(AuthenticatedCustomer(birthday))
 
             Ok(Unit)
         } else Err(NotAuthenticated)
