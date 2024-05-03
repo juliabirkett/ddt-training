@@ -1,12 +1,10 @@
 package com.store
 
 import com.github.michaelbull.result.Err
-import com.github.michaelbull.result.map
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.contains
 import com.natpryce.hamkrest.equalTo
 import com.store.cli.app
-import org.junit.jupiter.api.Assertions.assertEquals
 import java.time.LocalDate
 
 abstract class Customer {
@@ -27,9 +25,10 @@ class InMemoryCustomer(private val hub: CustomerAppHub) : Customer() {
     }
 
     override fun canSeeProductsCatalog(productIds: List<Int>) {
-        hub.catalog().map { products ->
-            assertEquals(productIds, products.map { it.id })
-        }
+        assertThat(
+            hub.catalog().value.map { it.id },
+            equalTo(productIds)
+        )
     }
 
     override fun logsIn(password: String, birthday: LocalDate) {

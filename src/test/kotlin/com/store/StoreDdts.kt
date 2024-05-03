@@ -45,6 +45,26 @@ class StoreDdts {
     }
 
     @Test
+    fun `an under-aged customer can not even see adult products in the catalog`() {
+        val underagedCustomer = scenario.newCustomer()
+        val adultCustomer = scenario.newCustomer()
+        val manager = scenario.newManager()
+        underagedCustomer.logsIn("customer123", LocalDate.parse("2019-02-20"))
+        manager.logsIn("admin123")
+        manager.canRegisterProductArrival(
+            listOf(
+                Product(id = 1, description = "sneakers", quantity = 46),
+                Product(id = 2, description = "cigarettes", quantity = 20),
+                Product(id = 3, description = "headphones", quantity = 10),
+            )
+        )
+
+        underagedCustomer.canSeeProductsCatalog(listOf(1, 3))
+        adultCustomer.logsIn("customer123", LocalDate.parse("1987-09-01"))
+        adultCustomer.canSeeProductsCatalog(listOf(1, 2 ,3))
+    }
+
+    @Test
     fun `a customer can not buy a product that doesn't have enough stock`() {
         val theQuickCustomer = scenario.newCustomer()
         val theLateCustomer = scenario.newCustomer()

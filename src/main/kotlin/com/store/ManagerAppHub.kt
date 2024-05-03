@@ -26,9 +26,16 @@ class CustomerAppHub(
     private val storage: StorageRepository,
     private val userStorage: UserManagerRepository,
 ) {
-    fun catalog(): Result<List<Product>, NotAuthenticated> = if (userStorage.getLoggedCustomer() !is AuthenticatedCustomer)
-        Err(NotAuthenticated)
-    else Ok(storage.findAll())
+    fun catalog(): Result<List<Product>, NotAuthenticated> {
+        val loggedUser = userStorage.getLoggedCustomer()
+
+        return if (loggedUser !is AuthenticatedCustomer)
+            Err(NotAuthenticated)
+        else {
+            if (loggedUser.isLegalAged) Ok(storage.findAll())
+            else Ok(storage.findAll().filterNot { it.isForAdultsOnly() })
+        }
+    }
 
     fun buy(productId: Int): Result<Product, ErrorCode> {
         val loggedUser = userStorage.getLoggedCustomer()
