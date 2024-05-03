@@ -33,7 +33,11 @@ class CliManager(private val repository: StorageRepository) : Manager() {
     }
 
     override fun cannotRegisterProducts(dueTo: NotAuthenticated) {
-        TODO()
+        val output = captureSystemOut {
+            interactWithSystemIn("register-product 1,testing,10") { app(repository) }
+        }
+
+        assertThat(output, contains(Regex(dueTo.message)))
     }
 
     override fun canRegisterProductArrival(products: List<Product>) {

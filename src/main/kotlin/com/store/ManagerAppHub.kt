@@ -18,11 +18,11 @@ object AuthenticatedCustomer : UserSession
 class CustomerAppHub(
     private val storage: StorageRepository
 ) {
-    fun catalog(): Result<List<Product>, NotAuthenticated> = if (storage.getLoggedUser() !is AuthenticatedCustomer)
+    fun catalog(): Result<List<Product>, NotAuthenticated> = if (storage.getLoggedUser() is NoSessionUser)
         Err(NotAuthenticated)
     else Ok(storage.findAll())
 
-    fun buy(productId: Int): Result<Product, ErrorCode> = if (storage.getLoggedUser() !is AuthenticatedCustomer)
+    fun buy(productId: Int): Result<Product, ErrorCode> = if (storage.getLoggedUser() is NoSessionUser)
         Err(NotAuthenticated)
     else
         storage.findAll().find { it.id == productId }
@@ -59,7 +59,10 @@ class CustomerAppHub(
 class ManagerAppHub(
     private val storage: StorageRepository
 ) {
-    fun register(product: Product): Result<Unit, ErrorCode> = Ok(storage.save(product))
+    fun register(product: Product): Result<Unit, ErrorCode> =  if (storage.getLoggedUser() is NoSessionUser)
+        Err(NotAuthenticated)
+    else
+        Ok(storage.save(product))
 
     fun logIn(password: String): Result<Unit, NotAuthenticated> =
         if (password == "admin123") Ok(Unit) else Err(NotAuthenticated)
