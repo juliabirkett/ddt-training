@@ -1,9 +1,10 @@
 package com.store.cli
 
 import com.github.michaelbull.result.mapBoth
-import com.store.*
-import java.io.InputStream
-import java.io.OutputStream
+import com.store.CustomerAppHub
+import com.store.ManagerAppHub
+import com.store.Product
+import com.store.StorageRepository
 import java.io.PrintStream
 import java.time.LocalDate
 import java.util.*

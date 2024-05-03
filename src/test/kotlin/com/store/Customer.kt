@@ -56,13 +56,15 @@ class CliCustomer(private val repository: StorageRepository) : Customer() {
     }
 
     override fun canBuy(productId: Int, customerAge: Int) {
-//        interactWithSystemIn("$productId\n$customerAge\n") { app }
+        TODO()
     }
 
     override fun cannotBuy(productId: Int, dueTo: ErrorCode) {
-//        val output = captureSystemOut { canBuy(productId) }
-//
-//        assertThat(output, contains(Regex(dueTo.message)))
+        val output = captureSystemOut {
+            interactWithSystemIn("buy $productId") { app(repository) }
+        }
+
+        assertThat(output, contains(Regex(dueTo.message)))
     }
 
     override fun canSeeProductsCatalog(productIds: List<Int>) {
