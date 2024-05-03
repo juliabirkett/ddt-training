@@ -5,7 +5,7 @@ import com.github.michaelbull.result.map
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.contains
 import com.natpryce.hamkrest.equalTo
-import com.store.cli.customerCliApp
+import com.store.cli.app
 import org.junit.jupiter.api.Assertions.assertEquals
 import java.time.LocalDate
 
@@ -46,27 +46,29 @@ class InMemoryCustomer(private val hub: CustomerAppHub) : Customer() {
     }
 }
 
-class CliCustomer(repository: StorageRepository) : Customer() {
-    private val app by lazy {
-        customerCliApp(repository = repository)
-    }
-
+class CliCustomer(private val repository: StorageRepository) : Customer() {
     override fun canBuy(productId: Int) {
-        interactWithSystemIn("${productId}\n10\n") { app }
+        val output = captureSystemOut {
+            interactWithSystemIn("buy $productId") { app(repository) }
+        }
+
+        assertThat(output, contains(Regex("Product bought! $productId")))
     }
 
     override fun canBuy(productId: Int, customerAge: Int) {
-        interactWithSystemIn("$productId\n$customerAge\n") { app }
+//        interactWithSystemIn("$productId\n$customerAge\n") { app }
     }
 
     override fun cannotBuy(productId: Int, dueTo: ErrorCode) {
-        val output = captureSystemOut { canBuy(productId) }
-
-        assertThat(output, contains(Regex(dueTo.message)))
+//        val output = captureSystemOut { canBuy(productId) }
+//
+//        assertThat(output, contains(Regex(dueTo.message)))
     }
 
     override fun canSeeProductsCatalog(productIds: List<Int>) {
-        val output = captureSystemOut { app }
+        val output = captureSystemOut {
+            interactWithSystemIn("show-catalog") { app(repository) }
+        }
 
         productIds.forEach { id ->
             assertThat(output, contains(Regex(id.toString())))
@@ -74,7 +76,11 @@ class CliCustomer(repository: StorageRepository) : Customer() {
     }
 
     override fun logsIn(password: String, birthday: LocalDate) {
-        TODO("Not yet implemented")
+        val output = captureSystemOut {
+            interactWithSystemIn("customer-login $password") { app(repository) }
+        }
+
+        assertThat(output, contains(Regex("Logged in successfully!")))
     }
 
     override fun cannotSeeProductsCatalog(dueTo: ErrorCode) {

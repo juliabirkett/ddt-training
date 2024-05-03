@@ -1,10 +1,11 @@
 package com.store
 
 import com.github.michaelbull.result.Err
+import com.natpryce.hamkrest.allElements
 import com.natpryce.hamkrest.assertion.assertThat
 import com.natpryce.hamkrest.contains
 import com.natpryce.hamkrest.equalTo
-import com.store.cli.managerCliApp
+import com.store.cli.app
 
 abstract class Manager {
     abstract fun canRegisterProductArrival(products: List<Product>)
@@ -22,34 +23,27 @@ class InMemoryManager(private val hub: ManagerAppHub) : Manager() {
     override fun canRegisterProductArrival(products: List<Product>) = products.forEach { hub.register(it) }
 }
 
-class CliManager(repository: StorageRepository) : Manager() {
-    private val allTheCommands = mutableListOf<String>()
-    private val app by lazy {
-        managerCliApp(repository = repository)
-    }
-
-    init {
-        allTheCommands.clear()
-    }
-
+class CliManager(private val repository: StorageRepository) : Manager() {
     override fun logsIn(password: String) {
-        allTheCommands.add(password)
+        val output = captureSystemOut {
+            interactWithSystemIn("manager-login $password") { app(repository) }
+        }
+
+        assertThat(output, contains(Regex("Logged in successfully!")))
     }
 
     override fun cannotRegisterProducts(dueTo: NotAuthenticated) {
-        val output = captureSystemOut {
-            interactWithSystemIn("invalid-password") { app }
-        }
-
-        assertThat(output, contains(Regex(dueTo.message)))
+        TODO()
     }
 
     override fun canRegisterProductArrival(products: List<Product>) {
-        allTheCommands.add(products.size.toString())
-        val productsString = products.map { "${it.id},${it.description},${it.quantity}" }
-        allTheCommands.add(productsString.joinToString("\n"))
+        val outputs: List<String> = products.map { product ->
+            captureSystemOut {
+                interactWithSystemIn("register-product ${product.id},${product.description},${product.quantity}") { app(repository) }
+            }
+        }
 
-        interactWithSystemIn(allTheCommands.joinToString("\n", postfix = "\n")) { app }
+        assertThat(outputs, allElements(contains(Regex("Product registered successfully"))))
     }
 }
 

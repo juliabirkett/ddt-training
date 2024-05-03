@@ -1,106 +1,76 @@
 package com.store.cli
 
-import com.github.michaelbull.result.Result
-import com.github.michaelbull.result.map
+import com.github.michaelbull.result.mapBoth
 import com.store.*
 import java.io.InputStream
 import java.io.OutputStream
 import java.io.PrintStream
+import java.time.LocalDate
 import java.util.*
 
-fun main() {
-    managerCliApp(repository = InMemoryStorageRepository)
+sealed class Command(open val value: String)
+class ManagerLoginCommand(override val value: String) : Command(value)
+class CustomerLoginCommand(override val value: String) : Command(value)
+class RegisterProductCommand(override val value: String) : Command(value)
+class ShowCatalogCommand(override val value: String) : Command(value)
+class BuyProductCommand(override val value: String) : Command(value)
+
+class CommandParser {
+    fun parse(command: String): Command = when {
+        command.startsWith("manager-login") -> ManagerLoginCommand(command.removePrefix("manager-login "))
+        command.startsWith("customer-login") -> CustomerLoginCommand(command.removePrefix("customer-login "))
+        command.startsWith("register-product") -> RegisterProductCommand(command.removePrefix("register-product "))
+        command.startsWith("show-catalog") -> ShowCatalogCommand(command.removePrefix("show-catalog "))
+        command.startsWith("buy") -> BuyProductCommand(command.removePrefix("buy "))
+        else -> TODO("Could not parse command!")
+    }
 }
 
-fun customerCliApp(
-    inFun: InputStream = System.`in`,
-    outFun: OutputStream = System.out,
+fun app(
     repository: StorageRepository,
 ) {
-    val hub = CustomerAppHub(repository)
+    val managerHub = ManagerAppHub(repository)
+    val customerHub = CustomerAppHub(repository)
 
-    val catalog = hub.catalog()
-        .map {
-            it.joinToString("\n") { product ->
-                product.id.toString()
+    val output: String = with(Scanner(System.`in`).nextLine()) {
+        when (val command = CommandParser().parse(this)) {
+            is ManagerLoginCommand -> managerHub.logIn(command.value)
+                .mapBoth(
+                    success = { "Logged in successfully!" },
+                    failure = { it.message }
+                )
+            is CustomerLoginCommand -> customerHub.logIn(command.value, LocalDate.now())
+                .mapBoth(
+                    success = { "Logged in successfully!" },
+                    failure = { it.message }
+                )
+            is RegisterProductCommand -> {
+                val productInfo = command.value.split(",")
+
+                managerHub.register(
+                    Product(
+                        id = productInfo[0].toInt(),
+                        description = productInfo[1],
+                        quantity = productInfo[2].toInt()
+                    )
+                ).mapBoth(
+                    success = { "Product registered successfully" },
+                    failure = { it.message }
+                )
             }
+            is ShowCatalogCommand -> customerHub.catalog()
+                .mapBoth(
+                    success = { products -> products.joinToString { it.id.toString() } },
+                    failure = { it.message }
+                )
+            is BuyProductCommand -> customerHub.buy(command.value.toInt())
+                .mapBoth(
+                    success = { "Product bought! ${command.value}" },
+                    failure = { it.message }
+                )
         }
-
-    PrintStream(outFun).println(
-        """
-            ------------ Product catalog ------------ 
-            $catalog
-            
-            What's the ID of the product you want to buy?
-        """
-    )
-    val scanner = Scanner(inFun)
-
-    while (scanner.hasNext()) {
-        val id = scanner.nextLine().toInt()
-
-        PrintStream(outFun).println("How old are you?\n")
-
-        val age = scanner.nextLine().toInt()
-
-        hub.buy(id, age).serialized(outFun)
-    }
-}
-
-fun Result<Any, ErrorCode>.serialized(outFun: OutputStream) {
-    val errorMessage = if (this.isOk) "" else error.message
-
-    PrintStream(outFun).println(errorMessage)
-}
-
-fun managerCliApp(
-    inFun: InputStream = System.`in`,
-    outFun: OutputStream = System.out,
-    repository: StorageRepository,
-) {
-    val hub = ManagerAppHub(repository)
-    val scanner = Scanner(inFun)
-
-    PrintStream(outFun).println(
-        """
-             ------------ Log in  ------------
-             
-             Are you really a manager? Type the secret!
-        """
-    )
-
-    val passwordString = scanner.nextLine().toString()
-    val loggedIn = hub.logIn(passwordString)
-
-    if (loggedIn.isErr) {
-        loggedIn.serialized(outFun)
-        return
     }
 
-    PrintStream(outFun).println(
-        """
-             ------------ Register product  ------------
-             How many products do you want to register?
-        """
-    )
-    val quantityToRegister = scanner.nextLine().toInt()
-
-    PrintStream(outFun).println(
-        """
-        Please enter the product details in this format:
-
-        > id,description,quantity
-        """
-    )
-
-    for (i in 0..< quantityToRegister) {
-        PrintStream(outFun).println("Registering product #$i:")
-
-        val inputString = scanner.nextLine().toString().split(",")
-        val id = inputString[0].toInt()
-        val description = inputString[1]
-        val quantity = inputString[2].toInt()
-
-        hub.register(Product(id = id, description = description, quantity = quantity))
-    }
+    PrintStream(System.out).println(output)
+    return
 }

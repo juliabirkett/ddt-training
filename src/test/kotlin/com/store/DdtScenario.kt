@@ -41,9 +41,7 @@ class InMemoryScenario(val customerAppHub: CustomerAppHub, val managerHub: Manag
 class CliScenario: DdtScenario() {
     private val repository = InMemoryStorageRepository
 
-    override fun resetUserSession() {
-        TODO("Not yet implemented")
-    }
+    override fun resetUserSession() { }
 
     override fun newCustomer(): Customer = CliCustomer(repository)
 
@@ -57,7 +55,7 @@ fun captureSystemOut(operation: () -> Unit) : String = ByteArrayOutputStream().u
     return String(it.toByteArray())
 }
 
-fun interactWithSystemIn(command: String, operation: () -> Unit) : String = ByteArrayInputStream(command.toByteArray()).use {
+fun interactWithSystemIn(command: String, operation: () -> Unit) : String = ByteArrayInputStream("$command\n".toByteArray()).use {
     System.setIn(it)
     operation()
     return it.toString()

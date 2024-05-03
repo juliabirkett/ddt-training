@@ -6,6 +6,8 @@ import java.time.LocalDate
 interface StorageRepository {
     fun findAll(): List<Product>
     fun save(product: Product)
+    fun save(userSession: UserSession)
+    fun getLoggedUser(): UserSession
 }
 
 sealed interface UserSession
@@ -16,13 +18,11 @@ object AuthenticatedCustomer : UserSession
 class CustomerAppHub(
     private val storage: StorageRepository
 ) {
-    private var userSession: UserSession = NoSessionUser
-
-    fun catalog(): Result<List<Product>, NotAuthenticated> = if (userSession !is AuthenticatedCustomer)
+    fun catalog(): Result<List<Product>, NotAuthenticated> = if (storage.getLoggedUser() !is AuthenticatedCustomer)
         Err(NotAuthenticated)
     else Ok(storage.findAll())
 
-    fun buy(productId: Int): Result<Product, ErrorCode> = if (userSession !is AuthenticatedCustomer)
+    fun buy(productId: Int): Result<Product, ErrorCode> = if (storage.getLoggedUser() !is AuthenticatedCustomer)
         Err(NotAuthenticated)
     else
         storage.findAll().find { it.id == productId }
@@ -50,13 +50,14 @@ class CustomerAppHub(
 
     fun logIn(password: String, birthday: LocalDate): Result<Unit, NotAuthenticated> =
         if (password == "customer123") {
-            userSession = AuthenticatedCustomer
+            storage.save(AuthenticatedCustomer)
 
             Ok(Unit)
         } else Err(NotAuthenticated)
 
+    // DONEXT: remove this?
     fun resetSession() {
-        userSession = NoSessionUser
+        storage.save(NoSessionUser)
     }
 }
 
@@ -65,7 +66,7 @@ class ManagerAppHub(
 ) {
     private var userSession: UserSession = NoSessionUser
 
-    fun register(product: Product) { storage.save(product) }
+    fun register(product: Product): Result<Unit, ErrorCode> = Ok(storage.save(product))
 
     fun logIn(password: String): Result<Unit, NotAuthenticated> =
         if (password == "admin123") Ok(Unit) else Err(NotAuthenticated)
@@ -79,7 +80,7 @@ sealed interface ErrorCode {
     val message: String
 }
 data object NotAuthenticated : ErrorCode {
-    override val message = "Manager is not authenticated"
+    override val message = "User is not authenticated"
 }
 data object ProductNotFound : ErrorCode {
     override val message = "ERROR! Product wasn't found in the catalog"
